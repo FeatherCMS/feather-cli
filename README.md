@@ -1,3 +1,3 @@
-# FeatherCore
+# FeatherCli
 
-Shared libraries for Feather CMS.
+Command line code generator for Feather CMS
