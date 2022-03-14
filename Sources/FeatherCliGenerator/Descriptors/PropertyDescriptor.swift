@@ -39,7 +39,7 @@ public struct PropertyDescriptor {
     public let name: String
     public let databaseType: DatabaseFieldType
     public let formFieldType: FormFieldType
-    public let isRequired: Bool
+    public var isRequired: Bool
     public let isSearchable: Bool
     public let isOrderingAllowed: Bool
 
@@ -60,5 +60,17 @@ public struct PropertyDescriptor {
         self.isSearchable = isSearchable
         self.isOrderingAllowed = isOrderingAllowed
     }
+    
+    public var kotlinType: String {
+        let suffix = (isRequired ? "" : "? = null")
+        switch databaseType{
+            case .date: return "String" + suffix
+            case .bool: return "Boolean" + suffix
+            default:
+                return databaseType.rawValue.capitalized + suffix
+            
+        }
+    }
+    
 }
 

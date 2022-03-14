@@ -114,4 +114,24 @@ final class ApiModelGeneratorTests: XCTestCase {
 
         XCTAssertEqual(expectation, result)
     }
+    
+    func testKotlinGenerator() async throws {
+        let descriptor = ModelDescriptor(name: "BoxCategory", properties: [
+            .init(name: "email", databaseType: .string, formFieldType: .input, isRequired: true, isSearchable: true, isOrderingAllowed: true),
+            .init(name: "password", databaseType: .string, formFieldType: .input, isRequired: false, isSearchable: true, isOrderingAllowed: true),
+        ])
+        
+        let result = ApiModelGeneratorKotlin(descriptor, module: "BoxCategory").generate()
+        let expectation = """
+            class BoxCategory {
+                
+                lateinit var email: String
+                var password: String? = null
+            
+            }
+            """
+
+        XCTAssertEqual(expectation, result)
+    }
+    
 }

@@ -20,6 +20,11 @@ struct GenerateModuleCommand: Command {
 
     func run(using context: CommandContext, signature: Signature) throws {
         let moduleName = context.console.ask("Module name?").capitalized
+        let consolePackageName = context.console.ask("Package name for kotlin?")
+        
+        //@TODO package name check maybe
+        let kotlinPackageName = consolePackageName.isEmpty ? "com.feather.api" : consolePackageName
+        
         var models: [ModelDescriptor] = []
         var addNextModel = false
         repeat {
@@ -51,7 +56,7 @@ struct GenerateModuleCommand: Command {
             }
             while addNextProperty
 
-            models.append(ModelDescriptor(name: modelName, properties: properties))
+                    models.append(ModelDescriptor(name: modelName, properties: properties, kotlinPackageName: kotlinPackageName))
             console.info("Model added.")
             addNextModel = context.console.choose("Add another model?", from: ["Yes", "No"]) == "Yes"
         }
@@ -102,6 +107,15 @@ struct GenerateModuleCommand: Command {
         let builderFileContents = ModuleBuilderGenerator(moduleDescriptor).generate()
         let builderFile = moduleUrl.appendingPathComponent(moduleDescriptor.name + "Builder.swift")
         try forceWrite(builderFileContents, at: builderFile)
+        
+        
+        // APIs Kotlin
+        let kotlinApiUrl = baseUrl.appendingPathComponent(moduleDescriptor.name + "KotlinApi")
+        //let moduleApiFileContents = ApiModuleGeneratorKotlin(moduleDescriptor).generate()
+       // let kotlinModuleApiFile = kotlinApiUrl.appendingPathComponent(moduleDescriptor.name + ".kt")
+        try forceCreateDirectory(at: kotlinApiUrl)
+        //try forceWrite(moduleApiFileContents, at: kotlinModuleApiFile)
+        
         
         // APIs
         let apiUrl = baseUrl.appendingPathComponent(moduleDescriptor.name + "Api")
@@ -161,6 +175,10 @@ struct GenerateModuleCommand: Command {
             let modelApiFileContents = ApiModelGenerator(modelDescriptor, module: moduleDescriptor.name).generate()
             let modelApiFile = apiUrl.appendingPathComponent(prefix + ".swift")
             try forceWrite(modelApiFileContents, at: modelApiFile)
+            
+            let kotlinModelApiFileContents = ApiModelGeneratorKotlin(modelDescriptor, module: moduleDescriptor.name).generate()
+            let kotlinModelApiFile = kotlinApiUrl.appendingPathComponent(prefix + ".kt")
+            try forceWrite(kotlinModelApiFileContents, at: kotlinModelApiFile)
             
             let apiControllerFileContents = ApiControllerGenerator(modelDescriptor, module: moduleDescriptor.name).generate()
             let apiControllerFile = apiControllerUrl.appendingPathComponent(prefix + "ApiController.swift")
